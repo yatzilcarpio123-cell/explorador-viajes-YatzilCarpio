@@ -1,87 +1,130 @@
-console.log('Conexion exitosa');
+/* =========================================
+   EXPLORADOR DE VIAJES
+   Archivo principal de la aplicación
+========================================= */
 
-/* IMPORTACIONES */
-import{
+
+/* =========================================
+   IMPORTACIONES
+========================================= */
+
+import {
     obtenerPaises
 } from "./api/countriesApi.js";
 
-/* ESTADO DE LA APLICACIÓN */
+
+import {
+    mostrarCargando,
+    mostrarError,
+    renderPaises,
+    actualizarContador
+} from "./ui/ui.js";
+
+
+/* =========================================
+   ESTADO DE LA APLICACIÓN
+========================================= */
+
 let paises = [];
 
-// REFERENCIAS DEL DOM
-const destinationContainer = document.querySelector("#destinations-container");
-const resultsCount = document.querySelector("#results-count");
-const initialMessage = document.querySelector("#initial-message");
 
-// INICIALIZACIÓN DE LA APLICACIÓN
+/* =========================================
+   REFERENCIAS DEL DOM
+========================================= */
+
+const destinationsContainer =
+    document.querySelector(
+        "#destinations-container"
+    );
+
+const resultsCount =
+    document.querySelector(
+        "#results-count"
+    );
+
+
+/* =========================================
+   INICIALIZACIÓN DE LA APLICACIÓN
+========================================= */
+
 async function init() {
-  console.log('Explorador de viajes iniciado');
 
-  /* MOSTRAR ESTADO DE CARGA */
-  initialMessage.innerHTML = `
-  <div class= "text-5xl mb-4>
-    🌎
-  </div>
-   <h3 class="
-            text-xl
-            font-semibold
-            text-slate-800
-            mb-2
-        ">
-    Cargando destinos...
-  </h3>
-  <p class = "text-slates-500">
-    Estamos consultando información de países alrededor del mundo.</p>`;
+    console.log(
+        "Explorador de Viajes iniciado"
+    );
 
-    /* OBTENER PAISES DESDE LA API */
-    paises = await obtenerPaises();
 
-    /* COMPROBAR RESULTADOS  */
-    console.log ("Países obtenidos:", paises);
+    /* =====================================
+       MOSTRAR ESTADO DE CARGA
+    ====================================== */
 
-    /* ACTUALIZAR CONTADOR */
-    resultsCount.textContent = `${paises.length} destinos`;
+    mostrarCargando(
+        destinationsContainer
+    );
 
-    /* MOSTRAR RESULTADO DE LA CARGA */
-    if (paises.length > 0){
-        initialMessage.innerHTML = `
-            <div class="text-5xl mb-4">
-                ✅
-            </div>
-            <h3
-                class = "
-                text-xl
-                font-semibold
-                text-slate-800
-                mb-2"
-            >
-                Destinos cargados
-            </h3>
-            <p class="text-slate-500">
-            Se obtuvieron ${paises.length}
-            destinos correctamente.
-            </p>
-        `;
+
+    /* =====================================
+       OBTENER PAÍSES DESDE LA API
+    ====================================== */
+
+    paises =
+        await obtenerPaises();
+
+
+    /* =====================================
+       COMPROBAR RESULTADOS
+    ====================================== */
+
+    console.log(
+        "Países obtenidos:",
+        paises
+    );
+
+
+    /* =====================================
+       VALIDAR SI LA API RETORNÓ DATOS
+    ====================================== */
+
+    if (paises.length === 0) {
+
+        mostrarError(
+            destinationsContainer
+        );
+
+        actualizarContador(
+            0,
+            resultsCount
+        );
+
+        return;
+
     }
-    else {
-        initialMessage.innerHTML = `
-            <div class="text-5xl mb-4">
-                ⚠️
-            </div>
-            <h3 class="
-                text-xl
-                font-semibold
-                text-slate-800
-                mb-2
-            ">
-                No fue posible cargar los destinos
-            </h3>
-            <p class = "text-slate-500">
-                Verifica tu conexión e intenta
-                nuevamente.
-            </p>`;
-    }
+
+
+    /* =====================================
+       RENDERIZAR DESTINOS
+    ====================================== */
+
+    renderPaises(
+        paises,
+        destinationsContainer
+    );
+
+
+    /* =====================================
+       ACTUALIZAR CONTADOR
+    ====================================== */
+
+    actualizarContador(
+        paises.length,
+        resultsCount
+    );
+
 }
 
-// INICIAR APLICACIÓN
+
+/* =========================================
+   INICIAR APLICACIÓN
+========================================= */
+
 init();

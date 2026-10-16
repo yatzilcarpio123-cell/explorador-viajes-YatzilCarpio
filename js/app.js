@@ -20,6 +20,9 @@ import {
     actualizarContador
 } from "./ui/ui.js";
 
+import {
+    procesarPaises
+} from "./utils/filters.js";
 
 /* =========================================
    ESTADO DE LA APLICACIÓN
@@ -41,6 +44,41 @@ const resultsCount =
     document.querySelector(
         "#results-count"
     );
+const searchInput = document.querySelector("#search-input");
+const continentFilter = document.querySelector("#continent-filter")
+const sortFilter = document.querySelector("#sort-filter")
+
+//APLICAR FILTROS 
+function aplicarFiltros(){
+    //valor de mi input 
+    const texto = searchInput.value;
+
+    //valor continente
+    const continente = continentFilter.value;
+
+    //valor criterio de orden 
+    const criterioOrden = sortFilter.value;
+
+    const resultados = procesarPaises(paises, texto, continente, criterioOrden);
+
+    //renderizar paises 
+    renderPaises(resultados, destinationsContainer);
+
+    //actualizar contador
+    actualizarContador(resultados.length, resultsCount);
+}
+
+//registrar eventos
+function registrarEventos(){
+    //creo mi primer evento
+    searchInput.addEventListener('input', aplicarFiltros);
+
+    //evento continenete
+    continentFilter.addEventListener('change', aplicarFiltros)
+
+    //evento ordenamiento 
+    sortFilter.addEventListener('change', aplicarFiltros)
+}
 
 
 /* =========================================
@@ -105,20 +143,27 @@ async function init() {
        RENDERIZAR DESTINOS
     ====================================== */
 
-    renderPaises(
+    /*renderPaises(
         paises,
         destinationsContainer
-    );
-
+    );*/
 
     /* =====================================
        ACTUALIZAR CONTADOR
     ====================================== */
 
-    actualizarContador(
+    /*actualizarContador(
         paises.length,
         resultsCount
-    );
+    );*/
+
+    /* MOSTRAR RESULTADOS INICIALES */
+    aplicarFiltros();
+
+
+    /* REGISTRAR EVENTOSS */
+    registrarEventos();
+    
 
 }
 
@@ -128,3 +173,4 @@ async function init() {
 ========================================= */
 
 init();
+

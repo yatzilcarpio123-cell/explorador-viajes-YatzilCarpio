@@ -17,8 +17,15 @@ import {
     mostrarCargando,
     mostrarError,
     renderPaises,
-    actualizarContador
+    actualizarContador,
+    mostrarDetalle,
+    cerrarDetalle
 } from "./ui/ui.js";
+
+import {
+    crearMapa,
+    destruirMapa
+} from "./ui/mapUI.js"
 
 import {
     procesarPaises
@@ -48,6 +55,14 @@ const searchInput = document.querySelector("#search-input");
 const continentFilter = document.querySelector("#continent-filter")
 const sortFilter = document.querySelector("#sort-filter")
 
+const detailModal = document.querySelector("#detail-modal");
+const detailModalContent = document.querySelector("#detail-modal-content");
+
+/* BUSCAR PAÍS POR CODIGO */
+function obtenerPaisPorCodigo(codigo){
+    return paises.find((pais) => pais.codes?.alpha_3 === codigo);
+}
+
 //APLICAR FILTROS 
 function aplicarFiltros(){
     //valor de mi input 
@@ -68,6 +83,40 @@ function aplicarFiltros(){
     actualizarContador(resultados.length, resultsCount);
 }
 
+/* ABRIR DETALLE DEL DESTINO */
+function abrirDetalle(codigo){
+    const pais = obtenerPaisPorCodigo(codigo);
+
+    if(!pais){
+        console.warn("País no encontrado");
+        return;
+    }
+
+    const datosMapa = mostrarDetalle(pais, detailModal, detailModalContent);
+
+    /* CREAR MAPA DEL DESTINO */
+    setTimeout(
+        () => {
+            crearMapa(
+                datosMapa.latitud,
+                datosMapa.longitud,
+                datosMapa.nombre
+            );
+        },
+        0
+    );
+}
+
+/* CERRAR MODAL DETALLE  */
+    function cerrarModalDetalle(){
+        destruirMapa();
+        cerrarDetalle(
+            detailModal,
+            detailModalContent
+        );
+    }
+
+
 //registrar eventos
 function registrarEventos(){
     //creo mi primer evento
@@ -77,7 +126,62 @@ function registrarEventos(){
     continentFilter.addEventListener('change', aplicarFiltros)
 
     //evento ordenamiento 
-    sortFilter.addEventListener('change', aplicarFiltros)
+    sortFilter.addEventListener('change', aplicarFiltros);
+
+    /* ACCIONES DE LAS TARJETAS */
+    destinationsContainer.addEventListener(
+        "click",
+        (event) => {
+            const boton =
+            event.target.closest(
+                "[data-action]"
+            );
+        if(!boton){
+            return;
+        }
+        const accion = boton.dataset.action;
+        const codigo = boton.dataset.countryCode;
+
+        if(accion === "detail"){
+            abrirDetalle(codigo);
+        }
+        
+        }
+    );
+    
+
+    /* CERRAR MODAL */
+    detailModal.addEventListener(
+        "click",
+        (event) => {
+            if (
+                event.target.id === "btn-close-detail"
+            ){
+                cerrarModalDetalle();
+                return;
+            }
+
+            if(
+                event.target === detailModal
+            ){
+                cerrarModalDetalle();
+            }
+        }
+    );
+
+    /* CERRAR MODAL CON ESCAPE */
+    document.addEventListener(
+        "keydown", (event) => {
+            if(
+                event.key === "Escape" &&
+                !detailModal.classList.contains(
+                    "hidden"
+                )
+            ){
+                cerrarModalDetalle();
+            }
+        }
+    );
 }
 
 
